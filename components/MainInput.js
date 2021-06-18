@@ -3,14 +3,13 @@ import styled from "styled-components";
 import { server } from "../config";
 import { getWords } from "../pages/api/getWords";
 
-import Character from "./Character";
+import Word from "./Word";
 
 const MainInputCont = styled.div`
   margin: 18rem 18rem;
   font-size: 1.5rem;
   font-weight: 400;
   height: 7rem;
-  overflow: hidden;
 `;
 
 const Input = styled.input`
@@ -45,12 +44,15 @@ const Unfocused = styled.div`
   z-index: 10;
 `;
 
-const UserInputCont = styled.div`
+const Words = styled.div`
   border: none;
   position: absolute;
+  display: flex;
+  flex-wrap: wrap;
   height: 7rem;
   width: calc(100% - 36rem);
   user-select: none;
+  overflow: hidden;
   z-index: 2;
 `;
 
@@ -191,17 +193,22 @@ const MainInput = (props) => {
 
   return (
     <MainInputCont>
-      {!focus && <Unfocused id="focus">Click here to resume</Unfocused>}
+      {!focus && <Unfocused id="focus">🙌 Click here to resume 🙌</Unfocused>}
       <>
         <Input spellCheck="false" id="userInput" autoComplete="off" />
-        <UserInputCont id="userInput">
-          {inputRef.current.map((obj) => {
-            return <Character char={obj.key} corr={obj.corr} />;
+        <Words id="userInput">
+          {props.wordList.map((obj) => {
+            return (
+              <Word
+                word={obj}
+                active={obj === props.wordList[props.wordCounter]}
+              />
+            );
           })}
-        </UserInputCont>
-        <WordsCont id="userInput" bottom={bottomRef.current}>
+        </Words>
+        {/* <WordsCont id="userInput" bottom={bottomRef.current}>
           {props.wordList}
-        </WordsCont>
+        </WordsCont> */}
       </>
     </MainInputCont>
   );
