@@ -21,6 +21,7 @@ const Options = (props) => {
         props.option.option === "words" ? props.option.subOption : "100";
       const words = await getWords(optionProps);
       props.setWordList(words);
+      props.setInputList([]);
     };
 
     getWordList();

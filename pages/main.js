@@ -10,7 +10,7 @@ const MainCont = styled.div``;
 const main = () => {
   const [wordList, setWordList] = useState([]);
   const [inputList, setInputList] = useState([]);
-
+  const [wordCounter, setWordCounter] = useState(0);
   const [option, setOption] = useState({
     option: "time",
     subOption: "30",
@@ -19,17 +19,22 @@ const main = () => {
   return (
     <div>
       <Header />
-      <Counter wordList={wordList} inputList={inputList} option={option} />
+      <Counter option={option} wordCounter={wordCounter} />
       <MainInput
         option={option}
         setOption={setOption}
         wordList={wordList}
         setWordList={setWordList}
+        inputList={inputList}
+        setInputList={setInputList}
+        wordCounter={wordCounter}
+        setWordCounter={setWordCounter}
       />
       <Options
         option={option}
         setOption={setOption}
         setWordList={setWordList}
+        setInputList={setInputList}
       />
     </div>
   );

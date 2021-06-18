@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { server } from "../config";
 import { getWords } from "../pages/api/getWords";
 
+import Character from "./Character";
+
 const MainInputCont = styled.div`
   margin: 18rem 18rem;
   font-size: 1.5rem;
@@ -11,17 +13,24 @@ const MainInputCont = styled.div`
   overflow: hidden;
 `;
 
-const UserInput = styled.input`
+const Input = styled.input`
   border: none;
   background: transparent;
   position: absolute;
   color: transparent;
   height: 7rem;
   width: calc(100% - 36rem);
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
   &:focus {
     outline: none;
     text-decoration: none;
   }
+  z-index: 3;
 `;
 
 const Unfocused = styled.div`
@@ -33,62 +42,133 @@ const Unfocused = styled.div`
   left: 17rem;
   height: 7rem;
   backdrop-filter: blur(4px);
+  z-index: 10;
+`;
+
+const UserInputCont = styled.div`
+  border: none;
+  position: absolute;
+  height: 7rem;
+  width: calc(100% - 36rem);
+  user-select: none;
+  z-index: 2;
+`;
+
+const WordsCont = styled.span`
+  position: relative;
+  bottom: ${(props) => props.bottom}rem;
 `;
 
 const MainInput = (props) => {
+  const useForceUpdate = () => {
+    const [, setState] = useState();
+    return () => setState({});
+  };
+
   const [focus, setFocus] = useState(true);
-  const [counter, setCounter] = useState(0);
+  const [index, setIndex] = useState(0);
+  const [spaceCounter, setSpaceCounter] = useState(0);
+  const [bottom, setBottom] = useState(0);
+  const [finish, setFinish] = useState(false);
 
   const focusRef = useRef(focus);
-  const counterRef = useRef(counter);
+  const indexRef = useRef(index);
+  const spaceRef = useRef(spaceCounter);
+  const bottomRef = useRef(bottom);
+  const inputRef = useRef(props.inputList);
+
+  const forceUpdate = useForceUpdate();
 
   const setFocusRef = (boolean) => {
     focusRef.current = boolean;
     setFocus(boolean);
   };
 
-  const setCounterRef = (sub) => {
+  const setIndexRef = (sub) => {
     if (sub == "-") {
-      if (counterRef.current > 0) {
-        counterRef.current = counterRef.current - 1;
-        setCounter(counter - 1);
-        return;
+      if (indexRef.current > 0) {
+        indexRef.current = indexRef.current - 1;
       }
+    } else {
+      indexRef.current = indexRef.current + 1;
     }
-    counterRef.current = counterRef.current + 1;
-    setCounter(counter + 1);
+    setIndex(indexRef.current);
   };
 
-  const handleUserClick = () => {
+  const handleUserClick = (e) => {
     const el = document.activeElement;
-    if (el === document.getElementById("userInput")) {
-      setFocusRef(true);
+    if (focusRef.current == true) {
+      if (el === document.getElementById("userInput")) {
+        setFocusRef(true);
+      } else {
+        setFocusRef(false);
+      }
     } else {
-      setFocusRef(false);
+      if (e.target === document.getElementById("focus")) {
+        setFocusRef(true);
+      } else {
+        setFocusRef(false);
+      }
     }
   };
 
   const handleKeyDown = (e) => {
     if (focusRef.current) {
-      const { key, keyCode } = e;
-      if (keyCode == 8) {
-        setCounterRef("-");
-        return;
+      const { key, keyCode, code } = e;
+      if (code == "Backspace") {
+        setIndexRef("-");
+        inputRef.current.pop();
       }
 
-      if (key == props.wordList[counterRef.current]) {
-        setCounterRef();
-        console.log(
-          `yay correct ${counterRef} : ${props.wordList[counterRef.current]}`
-        );
-      } else {
-        console.log(
-          `boo ${counterRef}  : ${props.wordList[counterRef.current]}`
-        );
+      if (code == "Space") {
+        //count space if 12 spaces then add bottom: 4.3rem
+        spaceRef.current += 1;
+        if (spaceRef.current % 15 == 0) {
+          inputRef.current = [];
+          bottomRef.current += 4.3;
+        }
+
+        if (props.option.option == spaceRef.current) {
+        }
+
+        if (key == props.wordList[indexRef.current]) {
+          props.setWordCounter((count) => count + 1);
+          console.log(props.wordCounter);
+        }
+
+        setIndexRef();
+        inputRef.current.push({
+          corr: true,
+          key: key,
+        });
       }
-    } else {
-      console.log("hah");
+
+      if (keyCode >= 49 && keyCode <= 90) {
+        if (key == props.wordList[indexRef.current]) {
+          setIndexRef();
+          inputRef.current.push({
+            corr: true,
+            key: key,
+          });
+        } else {
+          setIndexRef();
+          inputRef.current.push({
+            corr: false,
+            key: props.wordList[indexRef.current - 1],
+          });
+        }
+      }
+      // } else if (code == "Space") {
+      //   if()
+      //   props.setWordCounter((count) => count + 1);
+      //   setIndexRef();
+      //   inputRef.current.push({
+      //     corr: true,
+      //     key: key,
+      //   });
+      // }
     }
+    forceUpdate();
   };
 
   useEffect(() => {
@@ -101,7 +181,9 @@ const MainInput = (props) => {
 
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
-
+    inputRef.current = [];
+    indexRef.current = 0;
+    props.setWordCounter(0);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
@@ -109,23 +191,20 @@ const MainInput = (props) => {
 
   return (
     <MainInputCont>
-      {!focus && <Unfocused>Click here to resume</Unfocused>}
+      {!focus && <Unfocused id="focus">Click here to resume</Unfocused>}
       <>
-        <UserInput spellCheck="false" id="userInput" />
-        {props.wordList}
+        <Input spellCheck="false" id="userInput" autoComplete="off" />
+        <UserInputCont id="userInput">
+          {inputRef.current.map((obj) => {
+            return <Character char={obj.key} corr={obj.corr} />;
+          })}
+        </UserInputCont>
+        <WordsCont id="userInput" bottom={bottomRef.current}>
+          {props.wordList}
+        </WordsCont>
       </>
     </MainInputCont>
   );
 };
 
 export default MainInput;
-
-// export const getServerSideProps = async (context) => {
-//   const res = await getWords();
-//   console.log(res);
-//   return {
-//     props: {
-//       res,
-//     },
-//   };
-// };

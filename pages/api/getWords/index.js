@@ -7,7 +7,6 @@ export const getWords = async (number) => {
     );
     const result = await data.json();
     var retArr = [];
-
     for (let x of result) {
       const split = x.split("");
       retArr.push(...split);

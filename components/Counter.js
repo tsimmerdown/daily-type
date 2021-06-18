@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import styled from "styled-components";
 
 const CounterCont = styled.div`
@@ -11,13 +12,13 @@ const CounterCont = styled.div`
 const Time = styled.div``;
 const Count = styled.div``;
 
-const Counter = ({ wordList, inputList, option }) => {
+const Counter = ({ option, wordCounter }) => {
   return (
     <CounterCont>
       {option.option === "time" ? (
         <Time>{option.subOption}</Time>
       ) : (
-        <Count>{` ${inputList.length} / ${option.subOption}`}</Count>
+        <Count>{` ${wordCounter} / ${option.subOption}`}</Count>
       )}
     </CounterCont>
   );
