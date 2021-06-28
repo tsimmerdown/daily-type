@@ -6,13 +6,7 @@ export const getWords = async (number) => {
       `https://random-word-api.herokuapp.com/word?number=${number}`
     );
     const result = await data.json();
-    var retArr = [];
-    for (let x of result) {
-      const split = x.split("");
-      retArr.push(...split);
-      retArr.push(" ");
-    }
-    return retArr;
+    return result;
   } catch (error) {
     return error;
   }

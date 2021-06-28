@@ -22,6 +22,7 @@ const Options = (props) => {
       const words = await getWords(optionProps);
       props.setWordList(words);
       props.setInputList([]);
+      props.setStart((state) => state && false);
     };
 
     getWordList();
