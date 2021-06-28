@@ -1,9 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
-import { server } from "../config";
-import { getWords } from "../pages/api/getWords";
 
 import Word from "./Word";
+import Finish from "../Finish";
 
 const MainInputCont = styled.div`
   margin: 18rem 18rem;
@@ -25,10 +24,12 @@ const Input = styled.input`
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  outline: none;
   &:focus {
     outline: none;
     text-decoration: none;
   }
+  cursor: default;
   z-index: 3;
 `;
 
@@ -68,39 +69,43 @@ const MainInput = (props) => {
   };
 
   const [focus, setFocus] = useState(true);
-  const [index, setIndex] = useState(0);
-  const [spaceCounter, setSpaceCounter] = useState(0);
   const [bottom, setBottom] = useState(0);
-  const [finish, setFinish] = useState(false);
+  const [activeCharIndex, setActiveCharIndex] = useState(-1);
 
   const focusRef = useRef(focus);
-  const indexRef = useRef(index);
-  const spaceRef = useRef(spaceCounter);
+  //bottomRef keeps track of shifting upwards
   const bottomRef = useRef(bottom);
+  //inputRef keeps track of inputs by user
   const inputRef = useRef(props.inputList);
+  //allows me to keep active index from going below -1
+  const activeIndexRef = useRef(activeCharIndex);
+  const startRef = useRef(props.start);
+  const finishRef = useRef(props.finish);
 
   const forceUpdate = useForceUpdate();
+
+  useEffect(() => {
+    startRef.current = props.start;
+    finishRef.current = props.finish;
+    console.log(finishRef.current);
+  }, [props.start, props.finish]);
+
+  useEffect(() => {
+    document
+      .getElementById("userInput")
+      .addEventListener("mousedown", (event) => {
+        event.preventDefault();
+      });
+  }, []);
 
   const setFocusRef = (boolean) => {
     focusRef.current = boolean;
     setFocus(boolean);
   };
 
-  const setIndexRef = (sub) => {
-    if (sub == "-") {
-      if (indexRef.current > 0) {
-        indexRef.current = indexRef.current - 1;
-      }
-    } else {
-      indexRef.current = indexRef.current + 1;
-    }
-    setIndex(indexRef.current);
-  };
-
   const handleUserClick = (e) => {
-    const el = document.activeElement;
     if (focusRef.current == true) {
-      if (el === document.getElementById("userInput")) {
+      if (e.target === document.getElementById("userInput")) {
         setFocusRef(true);
       } else {
         setFocusRef(false);
@@ -116,59 +121,39 @@ const MainInput = (props) => {
 
   const handleKeyDown = (e) => {
     if (focusRef.current) {
+      if (startRef.current == false && finishRef.current == false) {
+        props.setStart((state) => state || true);
+        startRef.current = true;
+      }
       const { key, keyCode, code } = e;
       if (code == "Backspace") {
-        setIndexRef("-");
-        inputRef.current.pop();
+        if (activeIndexRef.current > -1) {
+          setActiveCharIndex((index) => index - 1);
+          activeIndexRef.current -= 1;
+          inputRef.current.pop();
+        }
       }
 
       if (code == "Space") {
         //count space if 12 spaces then add bottom: 4.3rem
-        spaceRef.current += 1;
-        if (spaceRef.current % 15 == 0) {
-          inputRef.current = [];
-          bottomRef.current += 4.3;
-        }
+        // spaceRef.current += 1;
+        // if (spaceRef.current % 15 == 0) {
+        //   inputRef.current = [];
+        //   bottomRef.current += 4.3;
+        // }
 
-        if (props.option.option == spaceRef.current) {
-        }
+        setActiveCharIndex(-1);
+        activeIndexRef.current = -1;
 
-        if (key == props.wordList[indexRef.current]) {
-          props.setWordCounter((count) => count + 1);
-          console.log(props.wordCounter);
-        }
-
-        setIndexRef();
-        inputRef.current.push({
-          corr: true,
-          key: key,
-        });
+        props.setWordCounter((count) => count + 1);
+        inputRef.current = [];
       }
 
       if (keyCode >= 49 && keyCode <= 90) {
-        if (key == props.wordList[indexRef.current]) {
-          setIndexRef();
-          inputRef.current.push({
-            corr: true,
-            key: key,
-          });
-        } else {
-          setIndexRef();
-          inputRef.current.push({
-            corr: false,
-            key: props.wordList[indexRef.current - 1],
-          });
-        }
+        inputRef.current.push(key);
+        setActiveCharIndex((index) => index + 1);
+        activeIndexRef.current += 1;
       }
-      // } else if (code == "Space") {
-      //   if()
-      //   props.setWordCounter((count) => count + 1);
-      //   setIndexRef();
-      //   inputRef.current.push({
-      //     corr: true,
-      //     key: key,
-      //   });
-      // }
     }
     forceUpdate();
   };
@@ -184,8 +169,8 @@ const MainInput = (props) => {
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     inputRef.current = [];
-    indexRef.current = 0;
     props.setWordCounter(0);
+    setActiveCharIndex(-1);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
@@ -193,23 +178,35 @@ const MainInput = (props) => {
 
   return (
     <MainInputCont>
-      {!focus && <Unfocused id="focus">🙌 Click here to resume 🙌</Unfocused>}
-      <>
-        <Input spellCheck="false" id="userInput" autoComplete="off" />
-        <Words id="userInput">
-          {props.wordList.map((obj) => {
-            return (
-              <Word
-                word={obj}
-                active={obj === props.wordList[props.wordCounter]}
-              />
-            );
-          })}
-        </Words>
-        {/* <WordsCont id="userInput" bottom={bottomRef.current}>
-          {props.wordList}
-        </WordsCont> */}
-      </>
+      {props.finish ? (
+        <Finish
+          setFinish={props.setFinish}
+          setStart={props.setStart}
+          option={props.option}
+          setWordList={props.setWordList}
+          setInputList={props.setInputList}
+        />
+      ) : (
+        <>
+          {!focus && (
+            <Unfocused id="focus">🙌 Click here to resume 🙌</Unfocused>
+          )}
+          <Input id="userInput" spellCheck="false" autoComplete="off" />
+          <Words>
+            {props.wordList.map((obj) => {
+              return (
+                <Word
+                  word={obj}
+                  active={obj === props.wordList[props.wordCounter]}
+                  input={inputRef.current}
+                  activeCharIndex={activeCharIndex}
+                  wordList={props.wordList}
+                />
+              );
+            })}
+          </Words>
+        </>
+      )}
     </MainInputCont>
   );
 };

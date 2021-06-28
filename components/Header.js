@@ -5,6 +5,8 @@ import {
   AiOutlineUser,
 } from "react-icons/ai";
 
+import Link from "next/link";
+
 import Timer from "./Timer";
 
 const HeaderCont = styled.div`
@@ -17,6 +19,7 @@ const HeaderCont = styled.div`
     font-size: 3rem;
     font-weight: 400;
     flex: 5 1 auto;
+    user-select: none;
   }
 `;
 
@@ -57,7 +60,9 @@ const User = styled(AiOutlineUser)`
 const Header = () => {
   return (
     <HeaderCont>
-      <h1>⌨daily type</h1>
+      <Link href="/main">
+        <h1>⌨daily type</h1>
+      </Link>
       <Timer />
       <IconList>
         <About />
