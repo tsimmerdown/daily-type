@@ -27,7 +27,6 @@ const Word = (props) => {
   useEffect(() => {
     if (error) {
       props.setErrorCounter((count) => count + 1);
-      console.log("hi");
     }
   }, [props.active]);
 
