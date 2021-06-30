@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { VscDebugRestart } from "react-icons/vsc";
 import { getWords } from "../pages/api/getWords";
+import { useWordList } from "../context/wordListContext";
 
 const FinishCont = styled.div`
   display: flex;
@@ -15,14 +16,16 @@ const Restart = styled(VscDebugRestart)`
   height: 2rem;
 `;
 
-const Finish = ({ setFinish, setStart, option, setWordList, setInputList }) => {
+const Finish = ({ setFinish, setStart, setInputList }) => {
+  const { options, dispatch } = useWordList();
+
   const calculateWPM = () => {};
 
   const handleRestart = async () => {
-    const words = await getWords(option.subOption);
+    const words = await getWords(options.subOption);
     setFinish(false);
     setStart(false);
-    setWordList(words);
+    dispatch({ type: "SET_WORDS", payload: words });
     setInputList([]);
   };
 

@@ -3,6 +3,7 @@ import styled from "styled-components";
 
 import Word from "./Word";
 import Finish from "../Finish";
+import { useWordList } from "../../context/wordListContext";
 
 const MainInputCont = styled.div`
   margin: 18rem 18rem;
@@ -67,6 +68,7 @@ const MainInput = (props) => {
     const [, setState] = useState();
     return () => setState({});
   };
+  const { state } = useWordList();
 
   const [focus, setFocus] = useState(true);
   const [bottom, setBottom] = useState(0);
@@ -174,7 +176,7 @@ const MainInput = (props) => {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [props.wordList]);
+  }, [state.wordList]);
 
   return (
     <MainInputCont>
@@ -182,7 +184,6 @@ const MainInput = (props) => {
         <Finish
           setFinish={props.setFinish}
           setStart={props.setStart}
-          option={props.option}
           setWordList={props.setWordList}
           setInputList={props.setInputList}
         />
@@ -193,14 +194,14 @@ const MainInput = (props) => {
           )}
           <Input id="userInput" spellCheck="false" autoComplete="off" />
           <Words>
-            {props.wordList.map((obj) => {
+            {state.wordList.map((obj, key) => {
               return (
                 <Word
+                  key={key}
                   word={obj}
-                  active={obj === props.wordList[props.wordCounter]}
+                  active={obj === state.wordList[props.wordCounter]}
                   input={inputRef.current}
                   activeCharIndex={activeCharIndex}
-                  wordList={props.wordList}
                 />
               );
             })}

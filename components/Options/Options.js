@@ -2,6 +2,8 @@ import { useEffect } from "react";
 import styled from "styled-components";
 import { getWords } from "../../pages/api/getWords";
 import Option from "./Option";
+import { useWordList } from "../../context/wordListContext";
+import { useOptions } from "../../context/optionsContext";
 
 const OptionCont = styled.div`
   position: absolute;
@@ -15,18 +17,22 @@ const SubOptionCont = styled.div`
 `;
 
 const Options = (props) => {
+  const { dispatch } = useWordList();
+  const { options } = useOptions();
+
   useEffect(() => {
     const getWordList = async () => {
       const optionProps =
-        props.option.option === "words" ? props.option.subOption : "100";
+        options.option === "words" ? options.subOption : "100";
       const words = await getWords(optionProps);
-      props.setWordList(words);
+      dispatch({ type: "SET_WORDS", payload: words });
+
       props.setInputList([]);
       props.setStart((state) => state && false);
     };
 
     getWordList();
-  }, [props.option]);
+  }, [options]);
 
   return (
     <OptionCont>
@@ -34,7 +40,7 @@ const Options = (props) => {
         <Option label="time" {...props} />
         <Option label="words" {...props} />
       </div>
-      {props.option.option === "words" ? (
+      {options.option === "words" ? (
         <SubOptionCont>
           <Option label="10" sub {...props} />
           <Option label="25" sub {...props} />

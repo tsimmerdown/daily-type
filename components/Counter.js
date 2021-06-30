@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import { useWordList } from "../context/wordListContext";
+import { useOptions } from "../context/optionsContext";
 
 const CounterCont = styled.div`
   font-size: 8rem;
@@ -12,8 +14,10 @@ const CounterCont = styled.div`
 const Time = styled.div``;
 const Count = styled.div``;
 
-const Counter = ({ option, wordCounter, start, setFinish, setStart }) => {
-  const [timeLeft, setTimeLeft] = useState(parseInt(option.subOption));
+const Counter = ({ wordCounter, start, setFinish, setStart }) => {
+  const { options } = useOptions();
+
+  const [timeLeft, setTimeLeft] = useState(parseInt(options.subOption));
   const timeLeftRef = useRef(timeLeft);
 
   const calculateTimeLeft = () => {
@@ -21,8 +25,8 @@ const Counter = ({ option, wordCounter, start, setFinish, setStart }) => {
       timeLeftRef.current -= 1;
       setTimeLeft((time) => time - 1);
     } else if (start && timeLeftRef.current <= 0) {
-      timeLeftRef.current = parseInt(option.subOption);
-      setTimeLeft(parseInt(option.subOption));
+      timeLeftRef.current = parseInt(options.subOption);
+      setTimeLeft(parseInt(options.subOption));
       setStart((state) => state && false);
       setFinish((state) => state || true);
     }
@@ -35,19 +39,19 @@ const Counter = ({ option, wordCounter, start, setFinish, setStart }) => {
   }, [start]);
 
   useEffect(() => {
-    setTimeLeft(parseInt(option.subOption));
-    timeLeftRef.current = parseInt(option.subOption);
+    setTimeLeft(parseInt(options.subOption));
+    timeLeftRef.current = parseInt(options.subOption);
     setStart((state) => state && false);
-  }, [option]);
+  }, [options]);
 
   return (
     <>
       {start && (
         <CounterCont>
-          {option.option === "time" ? (
+          {options.option === "time" ? (
             <Time>{timeLeft}</Time>
           ) : (
-            <Count>{` ${wordCounter} / ${option.subOption}`}</Count>
+            <Count>{` ${wordCounter} / ${options.subOption}`}</Count>
           )}
         </CounterCont>
       )}

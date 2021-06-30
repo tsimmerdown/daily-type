@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
+import { useWordList } from "../../context/wordListContext";
 
 const CharCont = styled.span`
   color: ${(props) => props.seen && props.color};
@@ -25,9 +26,11 @@ const Type = styled.span`
   // }
 `;
 
-const Character = ({ char, curr, corr, wordList, active, setError }) => {
+const Character = ({ char, curr, corr, active, setError }) => {
   const [seen, setSeen] = useState(false);
   const [color, setColor] = useState("black");
+
+  const { state } = useWordList();
 
   useEffect(() => {
     const checkCorr = () => {
@@ -50,7 +53,7 @@ const Character = ({ char, curr, corr, wordList, active, setError }) => {
 
   useEffect(() => {
     setSeen(false);
-  }, [wordList]);
+  }, [state.wordList]);
 
   return (
     <>
