@@ -1,9 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import moment from "moment";
 
 import Word from "./Word";
 import Finish from "../Finish";
 import { useWordList } from "../../context/wordListContext";
+import { useWordCounter } from "../../context/wordCounterContext";
+import Options from "../Options/Options";
+import { useOptions } from "../../context/optionsContext";
 
 const MainInputCont = styled.div`
   margin: 18rem 18rem;
@@ -69,7 +73,10 @@ const MainInput = (props) => {
     return () => setState({});
   };
   const { state } = useWordList();
+  const { options } = useOptions();
+  const { wordCounter, wordCounterDispatch } = useWordCounter();
 
+  const [currTime, setCurrTime] = useState();
   const [focus, setFocus] = useState(true);
   const [bottom, setBottom] = useState(0);
   const [activeCharIndex, setActiveCharIndex] = useState(-1);
@@ -83,13 +90,13 @@ const MainInput = (props) => {
   const activeIndexRef = useRef(activeCharIndex);
   const startRef = useRef(props.start);
   const finishRef = useRef(props.finish);
+  const wordCounterRef = useRef(wordCounter + 1);
 
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
     startRef.current = props.start;
     finishRef.current = props.finish;
-    console.log(finishRef.current);
   }, [props.start, props.finish]);
 
   useEffect(() => {
@@ -126,6 +133,8 @@ const MainInput = (props) => {
       if (startRef.current == false && finishRef.current == false) {
         props.setStart((state) => state || true);
         startRef.current = true;
+        let startTime = moment();
+        setCurrTime(startTime);
       }
       const { key, keyCode, code } = e;
       if (code == "Backspace") {
@@ -143,11 +152,18 @@ const MainInput = (props) => {
         //   inputRef.current = [];
         //   bottomRef.current += 4.3;
         // }
+        if (options.option == "words") {
+          if (wordCounterRef.current >= parseInt(options.subOption)) {
+            finishRef.current = true;
+            props.setFinish((state) => state || true);
+            wordCounterRef.current = 0;
+          }
+        }
 
         setActiveCharIndex(-1);
         activeIndexRef.current = -1;
-
-        props.setWordCounter((count) => count + 1);
+        wordCounterRef.current += 1;
+        wordCounterDispatch({ type: "INCREMENT" });
         inputRef.current = [];
       }
 
@@ -171,7 +187,7 @@ const MainInput = (props) => {
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     inputRef.current = [];
-    props.setWordCounter(0);
+    wordCounterDispatch({ type: "RESET" });
     setActiveCharIndex(-1);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -182,10 +198,14 @@ const MainInput = (props) => {
     <MainInputCont>
       {props.finish ? (
         <Finish
+          finish={props.finish}
           setFinish={props.setFinish}
           setStart={props.setStart}
           setWordList={props.setWordList}
           setInputList={props.setInputList}
+          errorCounter={props.errorCounter}
+          setErrorCounter={props.setErrorCounter}
+          currTime={currTime}
         />
       ) : (
         <>
@@ -199,9 +219,10 @@ const MainInput = (props) => {
                 <Word
                   key={key}
                   word={obj}
-                  active={obj === state.wordList[props.wordCounter]}
+                  active={obj === state.wordList[wordCounter]}
                   input={inputRef.current}
                   activeCharIndex={activeCharIndex}
+                  setErrorCounter={props.setErrorCounter}
                 />
               );
             })}

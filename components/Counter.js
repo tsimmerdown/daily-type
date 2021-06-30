@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import { useWordList } from "../context/wordListContext";
 import { useOptions } from "../context/optionsContext";
+import { useWordCounter } from "../context/wordCounterContext";
 
 const CounterCont = styled.div`
   font-size: 8rem;
@@ -14,21 +15,24 @@ const CounterCont = styled.div`
 const Time = styled.div``;
 const Count = styled.div``;
 
-const Counter = ({ wordCounter, start, setFinish, setStart }) => {
+const Counter = ({ start, finish, setFinish, setStart }) => {
   const { options } = useOptions();
+  const { wordCounter } = useWordCounter();
 
   const [timeLeft, setTimeLeft] = useState(parseInt(options.subOption));
   const timeLeftRef = useRef(timeLeft);
 
   const calculateTimeLeft = () => {
-    if (start && timeLeftRef.current > 0) {
-      timeLeftRef.current -= 1;
-      setTimeLeft((time) => time - 1);
-    } else if (start && timeLeftRef.current <= 0) {
-      timeLeftRef.current = parseInt(options.subOption);
-      setTimeLeft(parseInt(options.subOption));
-      setStart((state) => state && false);
-      setFinish((state) => state || true);
+    if (options.option == "time") {
+      if (start && timeLeftRef.current > 0) {
+        timeLeftRef.current -= 1;
+        setTimeLeft((time) => time - 1);
+      } else if (start && timeLeftRef.current <= 0) {
+        timeLeftRef.current = parseInt(options.subOption);
+        setTimeLeft(parseInt(options.subOption));
+        setStart((state) => state && false);
+        setFinish((state) => state || true);
+      }
     }
   };
 
@@ -46,7 +50,7 @@ const Counter = ({ wordCounter, start, setFinish, setStart }) => {
 
   return (
     <>
-      {start && (
+      {start && !finish && (
         <CounterCont>
           {options.option === "time" ? (
             <Time>{timeLeft}</Time>

@@ -9,30 +9,33 @@ const MainCont = styled.div``;
 
 const main = () => {
   const [inputList, setInputList] = useState([]);
-  const [wordCounter, setWordCounter] = useState(0);
-
+  const [errorCounter, setErrorCounter] = useState(0);
   const [start, setStart] = useState(false);
   const [finish, setFinish] = useState(false);
   return (
     <div>
       <Header />
       <Counter
-        wordCounter={wordCounter}
         start={start}
+        finish={finish}
         setFinish={setFinish}
         setStart={setStart}
       />
       <MainInput
         inputList={inputList}
         setInputList={setInputList}
-        wordCounter={wordCounter}
-        setWordCounter={setWordCounter}
         start={start}
         setStart={setStart}
         finish={finish}
         setFinish={setFinish}
+        errorCounter={errorCounter}
+        setErrorCounter={setErrorCounter}
       />
-      <Options setInputList={setInputList} setStart={setStart} />
+      <Options
+        setInputList={setInputList}
+        setStart={setStart}
+        setErrorCounter={setErrorCounter}
+      />
     </div>
   );
 };

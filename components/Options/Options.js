@@ -26,7 +26,7 @@ const Options = (props) => {
         options.option === "words" ? options.subOption : "100";
       const words = await getWords(optionProps);
       dispatch({ type: "SET_WORDS", payload: words });
-
+      props.setErrorCounter(0);
       props.setInputList([]);
       props.setStart((state) => state && false);
     };
