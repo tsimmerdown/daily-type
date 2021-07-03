@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import Character from "./Character";
+import { useWordList } from "../../context/wordListContext";
 
 const WordCont = styled.div`
   margin: 0.1rem 0.5rem;
@@ -13,19 +14,28 @@ const Word = (props) => {
   const [chars, setChars] = useState([]);
   const [error, setError] = useState(false);
 
+  const { state } = useWordList();
+
   useEffect(() => {
     const toString = () => {
       setChars(props.word.split(""));
       setError(false);
     };
     toString();
-  }, [props.wordList]);
+  }, [state.wordList]);
+
+  useEffect(() => {
+    if (error) {
+      props.setErrorCounter((count) => count + 1);
+    }
+  }, [props.active]);
 
   return (
     <WordCont active={props.active} error={error}>
       {chars.map((obj, index) => {
         return (
           <Character
+            key={index}
             char={obj}
             curr={index == props.activeCharIndex && props.active}
             active={index == props.activeCharIndex + 1 && props.active}
@@ -33,7 +43,6 @@ const Word = (props) => {
               props.input[props.activeCharIndex] ==
               props.word.charAt(props.activeCharIndex)
             }
-            wordList={props.wordList}
             setError={setError}
           />
         );

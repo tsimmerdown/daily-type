@@ -1,4 +1,5 @@
 import styled from "styled-components";
+import { useOptions } from "../../context/optionsContext";
 
 const OptionCont = styled.span`
   margin: 0 0.25rem;
@@ -9,24 +10,23 @@ const OptionCont = styled.span`
   }
 `;
 
-const Option = ({ option, setOption, label, sub }) => {
+const Option = ({ label, sub }) => {
+  const { options, optionsDispatch } = useOptions();
+
   const clickHandler = (target) => {
     if (sub) {
-      setOption({
-        option: option?.option,
-        subOption: target,
-      });
+      optionsDispatch({ type: "SET_SUBOPTION", payload: target });
     } else {
-      setOption({
-        option: target,
-        subOption: target === "time" ? "30" : "25",
+      optionsDispatch({
+        type: "SET_OPTION",
+        payload: { option: target, subOption: target === "time" ? "30" : "25" },
       });
     }
   };
 
   return (
     <OptionCont
-      active={sub ? option.subOption === label : option.option === label}
+      active={sub ? options.subOption === label : options.option === label}
       onClick={(e) => {
         clickHandler(e.target.innerHTML);
       }}

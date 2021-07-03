@@ -1,14 +1,17 @@
 import { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
+import moment from "moment";
 
 import Word from "./Word";
 import Finish from "../Finish";
+import { useWordList } from "../../context/wordListContext";
+import { useWordCounter } from "../../context/wordCounterContext";
+import { useOptions } from "../../context/optionsContext";
 
 const MainInputCont = styled.div`
-  margin: 18rem 18rem;
+  margin: 15rem 25rem;
   font-size: 1.5rem;
   font-weight: 400;
-  height: 7rem;
 `;
 
 const Input = styled.input`
@@ -16,8 +19,8 @@ const Input = styled.input`
   background: transparent;
   position: absolute;
   color: transparent;
-  height: 7rem;
-  width: calc(100% - 36rem);
+  width: calc(100% - 50rem);
+  height: 16rem;
   -webkit-touch-callout: none;
   -webkit-user-select: none;
   -khtml-user-select: none;
@@ -40,9 +43,10 @@ const Unfocused = styled.div`
   justify-content: center;
   width: calc(100% - 32rem);
   left: 17rem;
-  height: 7rem;
+  height: 17rem;
   backdrop-filter: blur(4px);
   z-index: 10;
+  user-select: none;
 `;
 
 const Words = styled.div`
@@ -50,16 +54,11 @@ const Words = styled.div`
   position: absolute;
   display: flex;
   flex-wrap: wrap;
-  height: 7rem;
-  width: calc(100% - 36rem);
+  max-height: 16rem;
+  width: calc(100% - 50rem);
   user-select: none;
   overflow: hidden;
   z-index: 2;
-`;
-
-const WordsCont = styled.span`
-  position: relative;
-  bottom: ${(props) => props.bottom}rem;
 `;
 
 const MainInput = (props) => {
@@ -68,6 +67,11 @@ const MainInput = (props) => {
     return () => setState({});
   };
 
+  const { state } = useWordList();
+  const { options } = useOptions();
+  const { wordCounter, wordCounterDispatch } = useWordCounter();
+
+  const [currTime, setCurrTime] = useState();
   const [focus, setFocus] = useState(true);
   const [bottom, setBottom] = useState(0);
   const [activeCharIndex, setActiveCharIndex] = useState(-1);
@@ -81,13 +85,13 @@ const MainInput = (props) => {
   const activeIndexRef = useRef(activeCharIndex);
   const startRef = useRef(props.start);
   const finishRef = useRef(props.finish);
+  const wordCounterRef = useRef(wordCounter + 1);
 
   const forceUpdate = useForceUpdate();
 
   useEffect(() => {
     startRef.current = props.start;
     finishRef.current = props.finish;
-    console.log(finishRef.current);
   }, [props.start, props.finish]);
 
   useEffect(() => {
@@ -124,6 +128,8 @@ const MainInput = (props) => {
       if (startRef.current == false && finishRef.current == false) {
         props.setStart((state) => state || true);
         startRef.current = true;
+        let startTime = moment();
+        setCurrTime(startTime);
       }
       const { key, keyCode, code } = e;
       if (code == "Backspace") {
@@ -135,17 +141,18 @@ const MainInput = (props) => {
       }
 
       if (code == "Space") {
-        //count space if 12 spaces then add bottom: 4.3rem
-        // spaceRef.current += 1;
-        // if (spaceRef.current % 15 == 0) {
-        //   inputRef.current = [];
-        //   bottomRef.current += 4.3;
-        // }
+        if (options.option == "words") {
+          if (wordCounterRef.current >= parseInt(options.subOption)) {
+            finishRef.current = true;
+            props.setFinish((state) => state || true);
+            wordCounterRef.current = 0;
+          }
+        }
 
         setActiveCharIndex(-1);
         activeIndexRef.current = -1;
-
-        props.setWordCounter((count) => count + 1);
+        wordCounterRef.current += 1;
+        wordCounterDispatch({ type: "INCREMENT" });
         inputRef.current = [];
       }
 
@@ -169,22 +176,26 @@ const MainInput = (props) => {
   useEffect(() => {
     window.addEventListener("keydown", handleKeyDown);
     inputRef.current = [];
-    props.setWordCounter(0);
+    wordCounterDispatch({ type: "RESET" });
     setActiveCharIndex(-1);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [props.wordList]);
+  }, [state.wordList]);
 
   return (
     <MainInputCont>
       {props.finish ? (
         <Finish
+          finish={props.finish}
           setFinish={props.setFinish}
           setStart={props.setStart}
-          option={props.option}
           setWordList={props.setWordList}
           setInputList={props.setInputList}
+          errorCounter={props.errorCounter}
+          setErrorCounter={props.setErrorCounter}
+          currTime={currTime}
+          setIsLoading={props.setIsLoading}
         />
       ) : (
         <>
@@ -193,14 +204,15 @@ const MainInput = (props) => {
           )}
           <Input id="userInput" spellCheck="false" autoComplete="off" />
           <Words>
-            {props.wordList.map((obj) => {
+            {state.wordList.map((obj, key) => {
               return (
                 <Word
+                  key={key}
                   word={obj}
-                  active={obj === props.wordList[props.wordCounter]}
+                  active={obj === state.wordList[wordCounter]}
                   input={inputRef.current}
                   activeCharIndex={activeCharIndex}
-                  wordList={props.wordList}
+                  setErrorCounter={props.setErrorCounter}
                 />
               );
             })}
