@@ -5,11 +5,13 @@ import { useOptions } from "../context/optionsContext";
 import { useWordCounter } from "../context/wordCounterContext";
 
 const CounterCont = styled.div`
-  font-size: 8rem;
+  font-size: 15rem;
   font-weight: 600;
   position: absolute;
   left: 50%;
-  transform: translate(-50%, 0);
+  top: 50%;
+  transform: translate(-50%, -75%);
+  color: rgba(193, 144, 101, 0.3);
 `;
 
 const Time = styled.div``;

@@ -28,6 +28,7 @@ const Finish = ({
   errorCounter,
   setErrorCounter,
   currTime,
+  setIsLoading,
 }) => {
   const { dispatch } = useWordList();
   const { options } = useOptions();
@@ -43,8 +44,7 @@ const Finish = ({
       let timeDiff = finishTime.diff(currTime) / 60000;
       wpm = totalCorrect / timeDiff;
     } else {
-      let conversion = 60 / options.subOption;
-      wpm = totalCorrect * conversion;
+      wpm = (totalCorrect * 60) / options.subOption;
     }
     setFinalWPM(wpm.toFixed(2));
   };
@@ -54,13 +54,16 @@ const Finish = ({
   }, [finish]);
 
   const handleRestart = async () => {
-    const words = await getWords(options.subOption);
+    setIsLoading(true);
+    const optionProps = options.option === "words" ? options.subOption : "100";
+    const words = await getWords(optionProps);
     setFinish(false);
     setStart(false);
     dispatch({ type: "SET_WORDS", payload: words });
     setErrorCounter(0);
     wordCounterDispatch({ type: "RESET" });
     setInputList([]);
+    setIsLoading(false);
   };
 
   return (

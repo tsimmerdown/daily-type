@@ -21,6 +21,7 @@ const Options = (props) => {
   const { options } = useOptions();
 
   useEffect(() => {
+    props.setIsLoading(true);
     const getWordList = async () => {
       const optionProps =
         options.option === "words" ? options.subOption : "100";
@@ -29,6 +30,7 @@ const Options = (props) => {
       props.setErrorCounter(0);
       props.setInputList([]);
       props.setStart((state) => state && false);
+      props.setIsLoading(false);
     };
 
     getWordList();
