@@ -4,6 +4,7 @@ import { getWords } from "../../pages/api/getWords";
 import Option from "./Option";
 import { useWordList } from "../../context/wordListContext";
 import { useOptions } from "../../context/optionsContext";
+import { useWordCounter } from "../../context/wordCounterContext";
 
 const OptionCont = styled.div`
   position: absolute;
@@ -19,6 +20,7 @@ const SubOptionCont = styled.div`
 const Options = (props) => {
   const { dispatch } = useWordList();
   const { options } = useOptions();
+  const { wordCounterDispatch } = useWordCounter();
 
   useEffect(() => {
     props.setIsLoading(true);
@@ -27,6 +29,7 @@ const Options = (props) => {
         options.option === "words" ? options.subOption : "100";
       const words = await getWords(optionProps);
       dispatch({ type: "SET_WORDS", payload: words });
+      wordCounterDispatch({ type: "RESET" });
       props.setErrorCounter(0);
       props.setInputList([]);
       props.setStart((state) => state && false);
