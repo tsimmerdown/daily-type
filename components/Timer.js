@@ -89,12 +89,14 @@ const Timer = () => {
   return (
     <TimerCont>
       {selectedTime <= 0 ? "00:00" : selectedTime}
-      <Input
-        id="time-input"
-        type="number"
-        onChange={changeHandler}
-        onKeyPress={keyPressHandler}
-      />
+      {!startTimer && (
+        <Input
+          id="time-input"
+          type="number"
+          onChange={changeHandler}
+          onKeyPress={keyPressHandler}
+        />
+      )}
     </TimerCont>
   );
 };
