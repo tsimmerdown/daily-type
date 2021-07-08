@@ -65,7 +65,9 @@ const Header = () => {
       </Link>
       <Timer />
       <IconList>
-        <About />
+        <Link href="/about">
+          <About />
+        </Link>
         <Settings />
         <User />
       </IconList>

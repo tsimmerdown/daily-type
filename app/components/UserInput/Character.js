@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useWordList } from "../../context/wordListContext";
+import { useCharacterCount } from "../../context/characterCountContext";
 
 const CharCont = styled.span`
   color: ${(props) => props.seen && props.color};
@@ -31,6 +32,7 @@ const Character = ({ char, curr, corr, active, setError }) => {
   const [color, setColor] = useState("black");
 
   const { state } = useWordList();
+  const { characterCountDispatch } = useCharacterCount();
 
   useEffect(() => {
     const checkCorr = () => {
@@ -38,14 +40,21 @@ const Character = ({ char, curr, corr, active, setError }) => {
         setSeen(true);
         if (corr) {
           setColor("white");
+          characterCountDispatch({ type: "INCREMENT" });
         } else {
           setColor("red");
           setError(true);
+          characterCountDispatch({ type: "INCORRECT" });
         }
       } else if (active && seen) {
         setSeen(false);
         setError(false);
         setColor("black");
+        if (color == "red") {
+          characterCountDispatch({ type: "DECREMENT_ERROR" });
+        } else {
+          characterCountDispatch({ type: "DECREMENT" });
+        }
       }
     };
     checkCorr();

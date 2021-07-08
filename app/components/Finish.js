@@ -6,6 +6,7 @@ import { useOptions } from "../context/optionsContext";
 import { useWordCounter } from "../context/wordCounterContext";
 import { useEffect, useState } from "react";
 import moment from "moment";
+import { useCharacterCount } from "../context/characterCountContext";
 
 const FinishCont = styled.div`
   display: flex;
@@ -25,28 +26,29 @@ const Finish = ({
   setFinish,
   setStart,
   setInputList,
-  errorCounter,
   setErrorCounter,
   currTime,
   setIsLoading,
 }) => {
   const { dispatch } = useWordList();
   const { options } = useOptions();
-  const { wordCounter, wordCounterDispatch } = useWordCounter();
+  const { wordCounterDispatch } = useWordCounter();
+  const { characterCount } = useCharacterCount();
 
   const [finalWPM, setFinalWPM] = useState(0);
 
   const calculateWPM = () => {
-    let totalCorrect = wordCounter - errorCounter;
+    let total = characterCount.totalCount / 5 - characterCount.errorCount;
     let wpm = 0;
     if (options.option == "words") {
       let finishTime = moment();
       let timeDiff = finishTime.diff(currTime) / 60000;
-      wpm = totalCorrect / timeDiff;
+      wpm = total / timeDiff;
     } else {
-      wpm = (totalCorrect * 60) / options.subOption;
+      wpm = (total * 60) / options.subOption;
     }
-    setFinalWPM(wpm.toFixed(2));
+
+    setFinalWPM(wpm > 0 ? wpm.toFixed(2) : 0);
   };
 
   useEffect(() => {

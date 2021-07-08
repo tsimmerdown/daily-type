@@ -7,6 +7,7 @@ import Finish from "../Finish";
 import { useWordList } from "../../context/wordListContext";
 import { useWordCounter } from "../../context/wordCounterContext";
 import { useOptions } from "../../context/optionsContext";
+import { useCharacterCount } from "../../context/characterCountContext";
 
 const MainInputCont = styled.div`
   margin: 15rem 25rem;
@@ -70,6 +71,7 @@ const MainInput = (props) => {
   const { state } = useWordList();
   const { options } = useOptions();
   const { wordCounter, wordCounterDispatch } = useWordCounter();
+  const { characterCountDispatch } = useCharacterCount();
 
   const [currTime, setCurrTime] = useState();
   const [focus, setFocus] = useState(true);
@@ -153,6 +155,7 @@ const MainInput = (props) => {
         activeIndexRef.current = -1;
         wordCounterRef.current += 1;
         wordCounterDispatch({ type: "INCREMENT" });
+        characterCountDispatch({ type: "INCREMENT" });
         inputRef.current = [];
       }
 
@@ -177,6 +180,7 @@ const MainInput = (props) => {
     window.addEventListener("keydown", handleKeyDown);
     inputRef.current = [];
     wordCounterDispatch({ type: "RESET" });
+    characterCountDispatch({ type: "RESET" });
     setActiveCharIndex(-1);
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
@@ -192,7 +196,6 @@ const MainInput = (props) => {
           setStart={props.setStart}
           setWordList={props.setWordList}
           setInputList={props.setInputList}
-          errorCounter={props.errorCounter}
           setErrorCounter={props.setErrorCounter}
           currTime={currTime}
           setIsLoading={props.setIsLoading}
