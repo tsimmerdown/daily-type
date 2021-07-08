@@ -4,13 +4,13 @@ const getWords = async (req, res) => {
   const { number } = req.body;
 
   try {
-    const data = await fetch(
+    const response = await fetch(
       `https://random-word-api.herokuapp.com/word?number=${number}`
     );
-    const result = await data.json();
-    res.status(200).send(result);
+    const data = await response.json();
+    res.status(200).json(data);
   } catch (error) {
-    res.status(500).send(error);
+    res.status(500).json(error);
   }
 };
 
