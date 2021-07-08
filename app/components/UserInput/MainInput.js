@@ -207,7 +207,7 @@ const MainInput = (props) => {
           )}
           <Input id="userInput" spellCheck="false" autoComplete="off" />
           <Words>
-            {state.wordList.map((obj, key) => {
+            {state.wordList?.map((obj, key) => {
               return (
                 <Word
                   key={key}

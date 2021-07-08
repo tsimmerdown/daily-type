@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import styled from "styled-components";
 import { getWords } from "../../api";
-// import { getWords } from "../../pages/api/getWords";
 import Option from "./Option";
 import { useWordList } from "../../context/wordListContext";
 import { useOptions } from "../../context/optionsContext";
@@ -28,8 +27,12 @@ const Options = (props) => {
     const getWordList = async () => {
       const optionProps =
         options.option === "words" ? options.subOption : "100";
-      const words = await getWords(optionProps);
-      dispatch({ type: "SET_WORDS", payload: words });
+      try {
+        const { data } = await getWords(optionProps);
+        dispatch({ type: "SET_WORDS", payload: data });
+      } catch (error) {
+        console.log(error);
+      }
       wordCounterDispatch({ type: "RESET" });
       props.setErrorCounter(0);
       props.setInputList([]);
