@@ -1,6 +1,7 @@
 import { useEffect } from "react";
 import styled from "styled-components";
-import { getWords } from "../../pages/api/getWords";
+import { getWords } from "../../api";
+// import { getWords } from "../../pages/api/getWords";
 import Option from "./Option";
 import { useWordList } from "../../context/wordListContext";
 import { useOptions } from "../../context/optionsContext";
