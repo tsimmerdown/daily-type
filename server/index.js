@@ -8,6 +8,6 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use("/api", apiRoutes);
 
-app.listen(3080, () => {
+app.listen(process.env.PORT || 3080, () => {
   console.log(`Server started and listening on PORT: 3080`);
 });
